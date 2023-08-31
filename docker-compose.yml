@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    platform: linux/x86_64
+    environment:
+      - MYSQL_ROOT_PASSWORD=123123
+      - MYSQL_DATABASE=contact
+    ports:
+      - 3306:3306
+    volumes:
+      - contact:/var/lib/mysql
+      - contact-config:/etc/mysql
+  node_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    platform: linux/x86_64
+    links:
+        - db
+    environment:
+      MYSQL_DBNAME: contact
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123123
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+    volumes:
+      - ./:/laravel-hello
+    ports:
+      - "3030:3030"
+    depends_on:
+      - db
+
+volumes:
+  contact:
+  contact-config:
